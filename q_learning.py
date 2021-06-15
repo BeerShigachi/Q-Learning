@@ -39,7 +39,7 @@ for ep in range(EPISODES):
             q_table[discrete_observation + (action,)] = 0
             continue
         else:
-            print('done!')
+            print(f"done on episode {ep}!")
             break
     max_next_q_val = np.max(q_table[new_observation])
     current_q_val = q_table[discrete_observation + (action,)]
