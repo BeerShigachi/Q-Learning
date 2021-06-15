@@ -50,7 +50,7 @@ for ep in range(EPISODES):
             q_table[discrete_observation + (action,)] = new_q_val
 
         elif observation[0] >= env.goal_position:
-            print(f"done! on ep{ep}", discrete_observation, action)
+            print(f"done! on ep{ep}", q_table[discrete_observation + (action,)], action)
             q_table[discrete_observation + (action,)] = 0
 
         discrete_observation = new_observation
