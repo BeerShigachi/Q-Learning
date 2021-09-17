@@ -1,17 +1,36 @@
+import sys
+import os
 import gym
 import numpy as np
 import matplotlib.pyplot as plt
+
+
+SAVE_DIR = 'tables'
+
+try:
+    os.mkdir(SAVE_DIR)
+except FileExistsError:
+    pass
+except Exception as e:
+    print("unknown error %s" % e)
 
 env = gym.make("MountainCar-v0")
 
 LEARNING_ALPHA = 0.1
 DISCOUNT = 0.95
 DISCRETE_OBS_SIZE = [20] * len(env.observation_space.high)
-EPISODES = 2000
+EPISODES = 20000
 SHOW_RATE = 500
 discrete_obs_window_size = (env.observation_space.high - env.observation_space.low) / DISCRETE_OBS_SIZE
 
-q_table = np.random.uniform(low=-2, high=0, size=(DISCRETE_OBS_SIZE + [env.action_space.n]))
+
+try:
+    q_table = np.load(sys.argv[1], allow_pickle=False)
+    print("use %s" % sys.argv[1])
+except FileNotFoundError:
+    sys.exit("Invalid file path. '%s'" % sys.argv[1])
+except IndexError:
+    q_table = np.random.uniform(low=-2, high=0, size=(DISCRETE_OBS_SIZE + [env.action_space.n]))
 
 epsilon = 0.5
 EPSILON_DECAY_START = 1  # probably much higher starting episodes
@@ -64,6 +83,9 @@ for ep in range(EPISODES):
         epsilon -= epsilon_decay_val
 
     episode_rewards.append(ep_reward)
+
+    if not ep % 100 and ep > 0:
+        np.save("%s/%d.npy" % (SAVE_DIR, ep), q_table, allow_pickle=False)
 
     if not ep % SHOW_RATE:  ## equivalent to if episode%Show_rate == 0:
         average_reward = sum(episode_rewards[-SHOW_RATE:]) / len(episode_rewards[-SHOW_RATE:])
